@@ -8,6 +8,86 @@
 
 #include "Stitcher.h"
 
+namespace {
+	
+	bool searchPoint(const std::vector<cv::Point>& const points, cv::Point point)
+	{
+		for (int i=0; i<points.size(); ++i)
+			if (point == points[i])
+				return true;
+
+		return false;
+	}
+
+	const cv::Point getTheLastPoint(const cv::Mat& const image, std::vector<cv::Point> points, cv::Point startPoint)
+	{
+		int i=0;
+		for (i=startPoint.x; i<image.cols; ++i)
+			if (true == searchPoint(points, cv::Point(i, startPoint.y)))
+				return i == startPoint.x ?  INVALID_POINT : cv::Point(i-1, startPoint.y);
+
+		return i == image.cols ? cv::Point(i-1, startPoint.y) : INVALID_POINT;
+	}
+
+
+	// morphologic erosion
+	void clearOutlierBlackPoints(const cv::Mat& const originalImage, const cv::Mat& const image, std::vector<cv::Point>& points)
+	{
+		int neighboorNumber = 0;
+		cv::Point curr,
+				  temp;
+
+		for (int i=0; i<points.size(); ++i) {
+			curr = points[i];
+			neighboorNumber =0;
+
+			// kenarlara yakýn olanlara bakmýyorum. zaten kenarda ondan zarar gelmez
+			if (curr.x <= NEIGHBOOR_DISTANCE ||
+				curr.y <= NEIGHBOOR_DISTANCE ||
+				curr.x >= image.cols-NEIGHBOOR_DISTANCE ||
+				curr.y >= image.rows-NEIGHBOOR_DISTANCE)
+				continue;
+
+			temp = cv::Point(curr.x-NEIGHBOOR_DISTANCE, curr.y);
+			if (false == searchPoint(points, temp))
+				++neighboorNumber;
+
+			temp = cv::Point(curr.x-NEIGHBOOR_DISTANCE, curr.y-NEIGHBOOR_DISTANCE);
+			if (false == searchPoint(points, temp))
+				++neighboorNumber;
+
+			temp = cv::Point(curr.x, curr.y-NEIGHBOOR_DISTANCE);
+			if (false == searchPoint(points, temp))
+				++neighboorNumber;
+
+			temp = cv::Point(curr.x+NEIGHBOOR_DISTANCE, curr.y);
+			if (false == searchPoint(points, temp))
+				++neighboorNumber;
+
+			temp = cv::Point(curr.x+NEIGHBOOR_DISTANCE, curr.y+NEIGHBOOR_DISTANCE);
+			if (false == searchPoint(points, temp))
+				++neighboorNumber;
+
+			temp = cv::Point(curr.x, curr.y+NEIGHBOOR_DISTANCE);
+			if (false == searchPoint(points, temp))
+				++neighboorNumber;
+
+			temp = cv::Point(curr.x+NEIGHBOOR_DISTANCE, curr.y-NEIGHBOOR_DISTANCE);
+			if (false == searchPoint(points, temp))
+				++neighboorNumber;
+
+			temp = cv::Point(curr.x-NEIGHBOOR_DISTANCE, curr.y+NEIGHBOOR_DISTANCE);
+			if (false == searchPoint(points, temp))
+				++neighboorNumber;
+
+			// sonucu yorumlama kýsmý
+			if (neighboorNumber>5)
+				points.erase(points.begin() + i);
+		}
+	}
+
+} // end of unnamed namespace
+
 const cv::Mat BIL496::Stitcher::stitch(const std::string& const videoPath)
 {
 	static cv::Mat res,
@@ -62,5 +142,55 @@ const cv::Mat BIL496::Stitcher::stitch(const std::string& const videoPath)
 	}
 	
 	// We can't return local variable. This is a huge problem.
+	return res.clone();
+}
+
+const cv::Mat BIL496::Stitcher::fixTheEdges(const cv::Mat& const image)
+{
+	cv::Mat res = image.clone();
+	cv::Vec3b rgbVal;
+	std::vector<cv::Point> blackPointsBin;
+	cv::Point current;
+
+	for (int i=0; i<res.rows; ++i)
+		for (int j=0; j<res.cols; ++j) {
+			current.x = j;
+			current.y = i;
+			rgbVal = res.at<cv::Vec3b>(current);
+			if (rgbVal.val[0] < THERSHOLD_BLACK_POINT &&
+				rgbVal.val[1] < THERSHOLD_BLACK_POINT &&
+				rgbVal.val[2] < THERSHOLD_BLACK_POINT ) {
+				res.at<cv::Vec3b>(current).val[0] = 255;
+				res.at<cv::Vec3b>(current).val[1] = 0;
+				res.at<cv::Vec3b>(current).val[2] = 0;
+				blackPointsBin.push_back(current);
+			}
+		}
+	
+	// double erosion
+	clearOutlierBlackPoints(image, res, blackPointsBin);
+	clearOutlierBlackPoints(image, res, blackPointsBin);
+	clearOutlierBlackPoints(image, res, blackPointsBin);
+	clearOutlierBlackPoints(image, res, blackPointsBin);
+
+	for (int i=0; i<res.rows; ++i)
+		for (int j=0; j<res.rows; ++j) {
+			current.x = j;
+			current.y = i;
+
+			if (false == searchPoint(blackPointsBin, current)) {
+				cv::line(res, current, cv::Point(current.x+80, current.y), cv::Scalar(0,255,0));
+				cv::Point last = getTheLastPoint(res, blackPointsBin, current);
+				
+				if (INVALID_POINT != last)
+					cv::line(res, current, last, cv::Scalar(0,0,255));
+				
+				cv::imshow("image", res); cv::waitKey(0);
+				break;
+			}
+		}
+
+	cv::imwrite("res.jpg", res);
+	
 	return res.clone();
 }

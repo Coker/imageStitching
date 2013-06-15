@@ -7,11 +7,15 @@
 
 int main()
 {
-	std::string path("1.AVI");
+	// std::string path("1.AVI");
+	// cv::Mat pano = BIL496::Stitcher::stitch(path);
+	// imwrite("pano1.jpg", pano);
 
-	cv::Mat pano = BIL496::Stitcher::stitch(path);
+	std::string imagePath("pano1.jpg");
+	cv::Mat image = cv::imread(imagePath.data());
 
-	imwrite("pano1.jpg", pano);
+	// cv::imshow("image", image); cv::waitKey(0);
+	BIL496::Stitcher::fixTheEdges(image);
 
 	return 0;
 }
