@@ -11,7 +11,7 @@ int main()
 	// cv::Mat pano = BIL496::Stitcher::stitch(path);
 	// imwrite("pano1.jpg", pano);
 
-	std::string imagePath("pano1.jpg");
+	std::string imagePath("pano13.jpg");
 	cv::Mat image = cv::imread(imagePath.data());
 
 	// cv::imshow("image", image); cv::waitKey(0);

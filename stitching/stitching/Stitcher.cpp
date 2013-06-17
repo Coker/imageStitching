@@ -17,9 +17,9 @@ namespace {
 				return true;
 
 		return false;
-	}
+	} // end of searchPoint function
 
-	const cv::Point getTheLastPoint(const cv::Mat& const image, std::vector<cv::Point> points, cv::Point startPoint)
+	const cv::Point getTheLastPoint(const cv::Mat& const image, const std::vector<cv::Point>& points, cv::Point startPoint)
 	{
 		int i=0;
 		for (i=startPoint.x; i<image.cols; ++i)
@@ -27,7 +27,7 @@ namespace {
 				return i == startPoint.x ?  INVALID_POINT : cv::Point(i-1, startPoint.y);
 
 		return i == image.cols ? cv::Point(i-1, startPoint.y) : INVALID_POINT;
-	}
+	} // end of getTheLastPoint function
 
 
 	// morphologic erosion
@@ -84,10 +84,40 @@ namespace {
 			if (neighboorNumber>5)
 				points.erase(points.begin() + i);
 		}
-	}
+	} // end of clearOutlierBlackPoints function
+
+	int getHeight(const cv::Mat& const image, BIL496::Rectangle& rect, const std::vector<cv::Point>& points)
+	{
+		const cv::Point start = rect.startPoint;
+		cv::Point temp;
+
+		switch(rect.direction) {
+		case BIL496::TOP_DOWN: {
+			for (int i=start.y; i<image.rows; ++i) {
+				temp =getTheLastPoint(image, points, cv::Point(start.x, i));
+
+				if (start.x > temp.x) {
+					rect.width = start.y-i;
+					return 0;
+				} else 
+					continue;
+					
+			}
+		} break;
+		case BIL496::BOTTOM_UP: {
+			;
+		} break;
+		default:
+			return -1;
+		} // end of switch
+
+		return 0;
+
+	} // end of getHeight function
 
 } // end of unnamed namespace
 
+	
 const cv::Mat BIL496::Stitcher::stitch(const std::string& const videoPath)
 {
 	static cv::Mat res,
@@ -151,6 +181,14 @@ const cv::Mat BIL496::Stitcher::fixTheEdges(const cv::Mat& const image)
 	cv::Vec3b rgbVal;
 	std::vector<cv::Point> blackPointsBin;
 	cv::Point current;
+	current.x =0;
+	current.y =0;
+
+	Rectangle largeRect;
+
+	largeRect.width =-1;
+	largeRect.startPoint =current;
+	largeRect.endPoint =current;
 
 	for (int i=0; i<res.rows; ++i)
 		for (int j=0; j<res.cols; ++j) {
@@ -170,13 +208,39 @@ const cv::Mat BIL496::Stitcher::fixTheEdges(const cv::Mat& const image)
 	// double erosion
 	clearOutlierBlackPoints(image, res, blackPointsBin);
 	clearOutlierBlackPoints(image, res, blackPointsBin);
-	clearOutlierBlackPoints(image, res, blackPointsBin);
-	clearOutlierBlackPoints(image, res, blackPointsBin);
-
-	for (int i=0; i<res.rows; ++i)
-		for (int j=0; j<res.rows; ++j) {
+	
+	for (int i=0; i<res.rows/2; ++i) {
+		// from top
+		for (int j=0; j<res.cols; ++j) {
 			current.x = j;
 			current.y = i;
+
+			if (false == searchPoint(blackPointsBin, current)) {
+				cv::line(res, current, cv::Point(current.x+80, current.y), cv::Scalar(0,255,0));
+				cv::Point last = getTheLastPoint(res, blackPointsBin, current);
+				
+				if (INVALID_POINT != last) {
+					BIL496::Rectangle tempRect;
+					tempRect.direction = BIL496::TOP_DOWN;
+					tempRect.startPoint =current;
+					tempRect.endPoint =last;
+					tempRect.width = -1;
+
+					getHeight(res, tempRect, blackPointsBin);
+					cv::line(res, current, cv::Point(current.x, current.y-tempRect.width), cv::Scalar(0,0,255));
+					cv::line(res, current, last, cv::Scalar(0,0,255));
+				}
+					
+				
+				cv::imshow("image", res); cv::waitKey(0);
+				break;
+			}
+		}
+
+		// form bottom
+		for (int j=0; j<res.cols; ++j) {
+			current.x = j;
+			current.y = res.rows-i;
 
 			if (false == searchPoint(blackPointsBin, current)) {
 				cv::line(res, current, cv::Point(current.x+80, current.y), cv::Scalar(0,255,0));
@@ -189,6 +253,7 @@ const cv::Mat BIL496::Stitcher::fixTheEdges(const cv::Mat& const image)
 				break;
 			}
 		}
+	}
 
 	cv::imwrite("res.jpg", res);
 	

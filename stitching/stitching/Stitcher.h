@@ -13,6 +13,18 @@ namespace BIL496 {
 	#define THERSHOLD_BLACK_POINT 10
 	#define INVALID_POINT cv::Point(-1,-1)
 	#define NEIGHBOOR_DISTANCE 10
+	
+	enum DIRECTION {
+		BOTTOM_UP =0,
+		TOP_DOWN
+	};
+
+	typedef struct {
+		cv::Point startPoint;
+		cv::Point endPoint;
+		int width;
+		short int direction;
+	} Rectangle;
 
 	class Stitcher {
 	public:
