@@ -1,4 +1,4 @@
-﻿Build started 17.06.2013 01:28:43.
+﻿Build started 21.06.2013 11:30:09.
      1>Project "C:\Users\Coker\Documents\Projects\stitching\stitching\stitching\stitching.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Release\stitching.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -12,14 +12,14 @@
      1>Stitcher.cpp(13): warning C4227: anachronism used : qualifiers on reference are ignored
      1>Stitcher.cpp(15): warning C4018: '<' : signed/unsigned mismatch
      1>Stitcher.cpp(22): warning C4227: anachronism used : qualifiers on reference are ignored
-     1>Stitcher.cpp(34): warning C4227: anachronism used : qualifiers on reference are ignored
-     1>Stitcher.cpp(34): warning C4227: anachronism used : qualifiers on reference are ignored
-     1>Stitcher.cpp(40): warning C4018: '<' : signed/unsigned mismatch
-     1>Stitcher.cpp(89): warning C4227: anachronism used : qualifiers on reference are ignored
-     1>Stitcher.cpp(121): warning C4227: anachronism used : qualifiers on reference are ignored
-     1>Stitcher.cpp(152): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>Stitcher.cpp(43): warning C4227: anachronism used : qualifiers on reference are ignored
+     1>Stitcher.cpp(43): warning C4227: anachronism used : qualifiers on reference are ignored
+     1>Stitcher.cpp(49): warning C4018: '<' : signed/unsigned mismatch
+     1>Stitcher.cpp(98): warning C4227: anachronism used : qualifiers on reference are ignored
+     1>Stitcher.cpp(130): warning C4227: anachronism used : qualifiers on reference are ignored
+     1>Stitcher.cpp(161): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(371) : see declaration of 'sprintf'
-     1>Stitcher.cpp(178): warning C4227: anachronism used : qualifiers on reference are ignored
+     1>Stitcher.cpp(187): warning C4227: anachronism used : qualifiers on reference are ignored
        Link:
          c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Coker\Documents\Projects\stitching\stitching\Release\stitching.exe" /NOLOGO /LIBPATH:C:\Users\Coker\Desktop\opencv\build\x86\vc10\lib opencv_core243.lib opencv_imgproc243.lib opencv_highgui243.lib opencv_ml243.lib opencv_video243.lib opencv_features2d243.lib opencv_calib3d243.lib opencv_objdetect243.lib opencv_contrib243.lib opencv_legacy243.lib opencv_flann243.lib opencv_gpu243.lib opencv_nonfree243.lib opencv_photo243.lib opencv_videostab243.lib opencv_stitching243.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Release\stitching.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Coker\Documents\Projects\stitching\stitching\Release\stitching.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Coker\Documents\Projects\stitching\stitching\Release\stitching.lib" /MACHINE:X86 Release\main.obj
          Release\Stitcher.obj
@@ -35,4 +35,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:03.19
+Time Elapsed 00:00:03.04

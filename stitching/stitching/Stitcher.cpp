@@ -21,12 +21,21 @@ namespace {
 
 	const cv::Point getTheLastPoint(const cv::Mat& const image, const std::vector<cv::Point>& points, cv::Point startPoint)
 	{
+#if 0
 		int i=0;
 		for (i=startPoint.x; i<image.cols; ++i)
 			if (true == searchPoint(points, cv::Point(i, startPoint.y)))
 				return i == startPoint.x ?  INVALID_POINT : cv::Point(i-1, startPoint.y);
 
 		return i == image.cols ? cv::Point(i-1, startPoint.y) : INVALID_POINT;
+#endif
+		int i=0;
+		for (i=image.cols-1; i>=startPoint.x; --i)
+			if (false == searchPoint(points, cv::Point(i, startPoint.y)))
+				return i == startPoint.x ?  INVALID_POINT : cv::Point(i-1, startPoint.y);
+
+		return i == image.cols ? cv::Point(i-1, startPoint.y) : INVALID_POINT;
+
 	} // end of getTheLastPoint function
 
 
@@ -206,8 +215,8 @@ const cv::Mat BIL496::Stitcher::fixTheEdges(const cv::Mat& const image)
 		}
 	
 	// double erosion
-	clearOutlierBlackPoints(image, res, blackPointsBin);
-	clearOutlierBlackPoints(image, res, blackPointsBin);
+	// clearOutlierBlackPoints(image, res, blackPointsBin);
+	// clearOutlierBlackPoints(image, res, blackPointsBin);
 	
 	for (int i=0; i<res.rows/2; ++i) {
 		// from top
@@ -226,13 +235,13 @@ const cv::Mat BIL496::Stitcher::fixTheEdges(const cv::Mat& const image)
 					tempRect.endPoint =last;
 					tempRect.width = -1;
 
-					getHeight(res, tempRect, blackPointsBin);
-					cv::line(res, current, cv::Point(current.x, current.y-tempRect.width), cv::Scalar(0,0,255));
+					// getHeight(res, tempRect, blackPointsBin);
+					// cv::line(res, current, cv::Point(current.x, current.y-tempRect.width), cv::Scalar(0,0,255));
 					cv::line(res, current, last, cv::Scalar(0,0,255));
 				}
 					
 				
-				cv::imshow("image", res); cv::waitKey(0);
+				// cv::imshow("image", res); cv::waitKey(0);
 				break;
 			}
 		}
@@ -249,12 +258,13 @@ const cv::Mat BIL496::Stitcher::fixTheEdges(const cv::Mat& const image)
 				if (INVALID_POINT != last)
 					cv::line(res, current, last, cv::Scalar(0,0,255));
 				
-				cv::imshow("image", res); cv::waitKey(0);
+				// cv::imshow("image", res); cv::waitKey(0);
 				break;
 			}
 		}
 	}
-
+	
+	cv::imshow("image", res); cv::waitKey(0); 
 	cv::imwrite("res.jpg", res);
 	
 	return res.clone();
