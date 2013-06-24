@@ -1,30 +1,19 @@
-﻿Build started 24.06.2013 18:57:01.
+﻿Build started 25.06.2013 00:21:31.
      1>Project "C:\Users\Coker\Documents\Projects\stitching\stitching\stitching\stitching.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Release\stitching.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /IC:\Users\Coker\Desktop\opencv\build\include\opencv /IC:\Users\Coker\Desktop\opencv\build\include /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D _MBCS /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Stitcher.cpp
-         Stitcher.cpp
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /IC:\Users\Coker\Desktop\opencv\build\include\opencv /IC:\Users\Coker\Desktop\opencv\build\include /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D _MBCS /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
+         main.cpp
      1>c:\users\coker\desktop\opencv\build\include\opencv2\flann\logger.h(66): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(234) : see declaration of 'fopen'
      1>c:\users\coker\documents\projects\stitching\stitching\stitching\Stitcher.h(32): warning C4227: anachronism used : qualifiers on reference are ignored
      1>c:\users\coker\documents\projects\stitching\stitching\stitching\Stitcher.h(35): warning C4227: anachronism used : qualifiers on reference are ignored
-     1>Stitcher.cpp(14): warning C4227: anachronism used : qualifiers on reference are ignored
-     1>Stitcher.cpp(16): warning C4018: '<' : signed/unsigned mismatch
-     1>Stitcher.cpp(23): warning C4227: anachronism used : qualifiers on reference are ignored
-     1>Stitcher.cpp(48): warning C4227: anachronism used : qualifiers on reference are ignored
-     1>Stitcher.cpp(48): warning C4227: anachronism used : qualifiers on reference are ignored
-     1>Stitcher.cpp(54): warning C4018: '<' : signed/unsigned mismatch
-     1>Stitcher.cpp(103): warning C4227: anachronism used : qualifiers on reference are ignored
-     1>Stitcher.cpp(162): warning C4227: anachronism used : qualifiers on reference are ignored
-     1>Stitcher.cpp(193): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(371) : see declaration of 'sprintf'
-     1>Stitcher.cpp(219): warning C4227: anachronism used : qualifiers on reference are ignored
        Link:
          c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Coker\Documents\Projects\stitching\stitching\Release\stitching.exe" /NOLOGO /LIBPATH:C:\Users\Coker\Desktop\opencv\build\x86\vc10\lib opencv_core243.lib opencv_imgproc243.lib opencv_highgui243.lib opencv_ml243.lib opencv_video243.lib opencv_features2d243.lib opencv_calib3d243.lib opencv_objdetect243.lib opencv_contrib243.lib opencv_legacy243.lib opencv_flann243.lib opencv_gpu243.lib opencv_nonfree243.lib opencv_photo243.lib opencv_videostab243.lib opencv_stitching243.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Release\stitching.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Coker\Documents\Projects\stitching\stitching\Release\stitching.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Coker\Documents\Projects\stitching\stitching\Release\stitching.lib" /MACHINE:X86 Release\main.obj
          Release\Stitcher.obj
          Generating code
-     1>c:\users\coker\documents\projects\stitching\stitching\stitching\stitcher.cpp(157): warning C4715: '`anonymous namespace'::getHeight' : not all control paths return a value
+     1>c:\users\coker\documents\projects\stitching\stitching\stitching\stitcher.cpp(155): warning C4715: '`anonymous namespace'::getHeight' : not all control paths return a value
          Finished generating code
          stitching.vcxproj -> C:\Users\Coker\Documents\Projects\stitching\stitching\Release\stitching.exe
        Manifest:
@@ -36,4 +25,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:03.17
+Time Elapsed 00:00:02.68

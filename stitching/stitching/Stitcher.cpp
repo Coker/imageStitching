@@ -119,14 +119,15 @@ namespace {
 				if (false == searchPoint(points, cv::Point(end.x, i))) {
 					int tempWidth = std::abs(i-start.y);
 					
-					printf("temp %d-wdth %d\n", tempWidth, rect.width );
-
 					if (tempWidth < rect.width)
 						rect.width = tempWidth;
 					
 					return 0;
 				}		
-			}					   
+			}
+
+			// TODO control the line, implement a function
+
 		} break;
 		case BIL496::BOTTOM_UP: {
 			for (i=0; i<start.y; ++i)
@@ -145,20 +146,27 @@ namespace {
 
 					return 0;
 				}
+			
+			// TODO control the line, implement a function
 		} break;
 		default:
 			break;
 		}
 
-
-		
-		
-
 	} // end of getHeight function
 
 } // end of unnamed namespace
 
+bool controlTheLine(cv::Point start, cv::Point end, std::vector<cv::Point> points)
+{
+	for (int i=start.x; i<end.x; ++i)
+		if (true == searchPoint(points, cv::Point(start.x+i, start.y)))
+			return false;
 	
+
+	return true;
+}
+
 const cv::Mat BIL496::Stitcher::stitch(const std::string& const videoPath)
 {
 	static cv::Mat res,
@@ -327,16 +335,25 @@ const cv::Mat BIL496::Stitcher::fixTheEdges(const cv::Mat& const image)
 		}
 	}
 	
-	cv::line(res, largeRect.startPoint, cv::Point(largeRect.endPoint.x, largeRect.endPoint.y), cv::Scalar(0,255,0), 5);
+	cv::line(res, largeRect.startPoint, cv::Point(largeRect.endPoint.x, largeRect.endPoint.y), cv::Scalar(0,255,0), 1);
 	
 	if (BIL496::TOP_DOWN == largeRect.direction) {
-		cv::line(res, largeRect.startPoint, cv::Point(largeRect.startPoint.x, largeRect.startPoint.y + std::abs(largeRect.width)), cv::Scalar(0,255,0), 5);
-		cv::line(res, largeRect.endPoint, cv::Point(largeRect.endPoint.x, largeRect.endPoint.y + std::abs(largeRect.width)), cv::Scalar(0,255,0), 5);
-		cv::line(res, cv::Point(largeRect.startPoint.x, largeRect.startPoint.y + std::abs(largeRect.width)), cv::Point(largeRect.endPoint.x, largeRect.endPoint.y + std::abs(largeRect.width)), cv::Scalar(0,255,0), 5);
+		cv::line(res, largeRect.startPoint, cv::Point(largeRect.startPoint.x, largeRect.startPoint.y + std::abs(largeRect.width)), cv::Scalar(0,255,0), 1);
+		cv::line(res, largeRect.endPoint, cv::Point(largeRect.endPoint.x, largeRect.endPoint.y + std::abs(largeRect.width)), cv::Scalar(0,255,0), 1);
+		cv::line(res, cv::Point(largeRect.startPoint.x, largeRect.startPoint.y + std::abs(largeRect.width)),
+				 cv::Point(largeRect.endPoint.x, largeRect.endPoint.y + std::abs(largeRect.width)), cv::Scalar(0,255,0), 1);
+		
+		cv::Mat largeRectImage = res(cv::Rect(largeRect.startPoint.x+1, largeRect.startPoint.y+1, std::abs(largeRect.endPoint.x - largeRect.startPoint.x)-2, largeRect.width-2 ));
+		
+		cv::imwrite("corroptedImage.jpg", largeRectImage);
 	} else {
-		cv::line(res, largeRect.startPoint, cv::Point(largeRect.startPoint.x, largeRect.startPoint.y - std::abs(largeRect.width)), cv::Scalar(0,255,0), 5);
-		cv::line(res, largeRect.endPoint, cv::Point(largeRect.endPoint.x, largeRect.endPoint.y - std::abs(largeRect.width)), cv::Scalar(0,255,0), 5);
-		cv::line(res, cv::Point(largeRect.startPoint.x, largeRect.startPoint.y - std::abs(largeRect.width)), cv::Point(largeRect.endPoint.x, largeRect.endPoint.y - std::abs(largeRect.width)), cv::Scalar(0,255,0), 5);
+		cv::line(res, largeRect.startPoint, cv::Point(largeRect.startPoint.x, largeRect.startPoint.y - std::abs(largeRect.width)), cv::Scalar(0,255,0), 1);
+		cv::line(res, largeRect.endPoint, cv::Point(largeRect.endPoint.x, largeRect.endPoint.y - std::abs(largeRect.width)), cv::Scalar(0,255,0), 1);
+		cv::line(res, cv::Point(largeRect.startPoint.x, largeRect.startPoint.y - std::abs(largeRect.width)),
+				 cv::Point(largeRect.endPoint.x, largeRect.endPoint.y - std::abs(largeRect.width)), cv::Scalar(0,255,0), 1);
+	
+		cv::Mat largeRectImage = res(cv::Rect(largeRect.startPoint.x+1, largeRect.startPoint.y-std::abs(largeRect.width)+1, std::abs(largeRect.endPoint.x - largeRect.startPoint.x)-2, largeRect.width-2 ));
+		cv::imwrite("corroptedImage.jpg", largeRectImage);
 	}
 
  	cv::imshow("image", res); cv::waitKey(0); 
