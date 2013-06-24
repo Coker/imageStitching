@@ -24,6 +24,7 @@ namespace BIL496 {
 		cv::Point endPoint;
 		int width;
 		short int direction;
+		long int pixelSquare;
 	} Rectangle;
 
 	class Stitcher {

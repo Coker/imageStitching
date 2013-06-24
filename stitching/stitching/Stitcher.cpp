@@ -2,6 +2,7 @@
 #include <windows.h> // windows api for directory creation 
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 #include <opencv2\highgui\highgui.hpp>
 #include <opencv2\stitching\stitcher.hpp>
@@ -21,21 +22,25 @@ namespace {
 
 	const cv::Point getTheLastPoint(const cv::Mat& const image, const std::vector<cv::Point>& points, cv::Point startPoint)
 	{
+		if (true == searchPoint(points, startPoint))
+			return INVALID_POINT;
 #if 0
 		int i=0;
 		for (i=startPoint.x; i<image.cols; ++i)
 			if (true == searchPoint(points, cv::Point(i, startPoint.y)))
 				return i == startPoint.x ?  INVALID_POINT : cv::Point(i-1, startPoint.y);
 
-		return i == image.cols ? cv::Point(i-1, startPoint.y) : INVALID_POINT;
+		// return i == image.cols ? cv::Point(i-1, startPoint.y) : INVALID_POINT;
+		return cv::Point(i-1, startPoint.y);
 #endif
+// #if 0
 		int i=0;
-		for (i=image.cols-1; i>=startPoint.x; --i)
+		for (i=image.cols-1; i>startPoint.x; --i)
 			if (false == searchPoint(points, cv::Point(i, startPoint.y)))
-				return i == startPoint.x ?  INVALID_POINT : cv::Point(i-1, startPoint.y);
+				return cv::Point(i-1, startPoint.y);
 
-		return i == image.cols ? cv::Point(i-1, startPoint.y) : INVALID_POINT;
-
+		return INVALID_POINT;
+// #endif
 	} // end of getTheLastPoint function
 
 
@@ -98,29 +103,56 @@ namespace {
 	int getHeight(const cv::Mat& const image, BIL496::Rectangle& rect, const std::vector<cv::Point>& points)
 	{
 		const cv::Point start = rect.startPoint;
-		cv::Point temp;
+		const cv::Point end = rect.endPoint;
+		int i=0;
 
-		switch(rect.direction) {
+		switch (rect.direction) {
 		case BIL496::TOP_DOWN: {
-			for (int i=start.y; i<image.rows; ++i) {
-				temp =getTheLastPoint(image, points, cv::Point(start.x, i));
-
-				if (start.x > temp.x) {
-					rect.width = start.y-i;
-					return 0;
-				} else 
-					continue;
-					
+			for (i=image.rows-1; i>start.y; --i) {
+				if (false == searchPoint(points, cv::Point(start.x, i))) {
+					rect.width = std::abs(i-start.y);
+					break;
+				}		
 			}
+
+			for (i=image.rows-1; i>start.y; --i) {
+				if (false == searchPoint(points, cv::Point(end.x, i))) {
+					int tempWidth = std::abs(i-start.y);
+					
+					printf("temp %d-wdth %d\n", tempWidth, rect.width );
+
+					if (tempWidth < rect.width)
+						rect.width = tempWidth;
+					
+					return 0;
+				}		
+			}					   
 		} break;
 		case BIL496::BOTTOM_UP: {
-			;
+			for (i=0; i<start.y; ++i)
+				if (false == searchPoint(points, cv::Point(start.x, i))) {
+					
+					rect.width = std::abs(start.y-i);
+					break; 
+				}
+
+			for (i=0; i<start.y; ++i)
+				if (false == searchPoint(points, cv::Point(end.x, i))) {
+					int tempWidth = std::abs(i-start.y);
+					
+					if (tempWidth < rect.width)
+						rect.width = tempWidth;
+
+					return 0;
+				}
 		} break;
 		default:
-			return -1;
-		} // end of switch
+			break;
+		}
 
-		return 0;
+
+		
+		
 
 	} // end of getHeight function
 
@@ -198,6 +230,7 @@ const cv::Mat BIL496::Stitcher::fixTheEdges(const cv::Mat& const image)
 	largeRect.width =-1;
 	largeRect.startPoint =current;
 	largeRect.endPoint =current;
+	largeRect.pixelSquare = 0;
 
 	for (int i=0; i<res.rows; ++i)
 		for (int j=0; j<res.cols; ++j) {
@@ -225,46 +258,88 @@ const cv::Mat BIL496::Stitcher::fixTheEdges(const cv::Mat& const image)
 			current.y = i;
 
 			if (false == searchPoint(blackPointsBin, current)) {
-				cv::line(res, current, cv::Point(current.x+80, current.y), cv::Scalar(0,255,0));
 				cv::Point last = getTheLastPoint(res, blackPointsBin, current);
-				
+				cv::Mat tempImage = res.clone();
+
 				if (INVALID_POINT != last) {
 					BIL496::Rectangle tempRect;
 					tempRect.direction = BIL496::TOP_DOWN;
 					tempRect.startPoint =current;
 					tempRect.endPoint =last;
 					tempRect.width = -1;
+					tempRect.pixelSquare = 0;
 
-					// getHeight(res, tempRect, blackPointsBin);
-					// cv::line(res, current, cv::Point(current.x, current.y-tempRect.width), cv::Scalar(0,0,255));
-					cv::line(res, current, last, cv::Scalar(0,0,255));
+					getHeight(res, tempRect, blackPointsBin);
+					tempRect.pixelSquare = std::abs(tempRect.startPoint.x - tempRect.endPoint.x) * 
+										   std::abs(tempRect.width);
+					
+					if (tempRect.pixelSquare > largeRect.pixelSquare)
+						largeRect = tempRect;
+
+					// drawing rectangle
+					cv::line(tempImage, tempRect.startPoint, cv::Point(tempRect.startPoint.x, current.y+tempRect.width), cv::Scalar(0,0,255));
+					cv::line(tempImage, tempRect.endPoint, cv::Point(tempRect.endPoint.x, current.y+tempRect.width), cv::Scalar(0,0,255));
+					cv::line(tempImage, current, last, cv::Scalar(0,0,255));
+					cv::line(tempImage, cv::Point(current.x, current.y+tempRect.width), cv::Point(last.x, current.y+tempRect.width), cv::Scalar(0,0,255));
 				}
 					
-				
-				// cv::imshow("image", res); cv::waitKey(0);
+				// cv::imshow("image", tempImage); cv::waitKey(0);
+				tempImage.release();
 				break;
 			}
 		}
 
-		// form bottom
+		// from bottom
 		for (int j=0; j<res.cols; ++j) {
 			current.x = j;
-			current.y = res.rows-i;
+			current.y = res.rows-i-1;
 
 			if (false == searchPoint(blackPointsBin, current)) {
-				cv::line(res, current, cv::Point(current.x+80, current.y), cv::Scalar(0,255,0));
 				cv::Point last = getTheLastPoint(res, blackPointsBin, current);
+				cv::Mat tempImage = res.clone();
+
+				if (INVALID_POINT != last) {
+					BIL496::Rectangle tempRect;
+					tempRect.direction = BIL496::BOTTOM_UP;
+					tempRect.startPoint =current;
+					tempRect.endPoint =last;
+					tempRect.width = -1;
+					tempRect.pixelSquare = 0;
+					
+					getHeight(res, tempRect, blackPointsBin);
+					tempRect.pixelSquare = std::abs(tempRect.startPoint.x - tempRect.endPoint.x) *
+										   std::abs(tempRect.width);
+
+					if (tempRect.pixelSquare > largeRect.pixelSquare)
+						largeRect = tempRect;
+
+					// drawing rectangle
+					cv::line(tempImage, current, last, cv::Scalar(0,0,255));
+					cv::line(tempImage, current, cv::Point(current.x, current.y-tempRect.width), cv::Scalar(0,0,255));
+					cv::line(tempImage, last, cv::Point(last.x, last.y-tempRect.width), cv::Scalar(0,0,255));
+					cv::line(tempImage, cv::Point(current.x, current.y-tempRect.width), cv::Point(last.x, current.y-tempRect.width), cv::Scalar(0,0,255));
+				}
 				
-				if (INVALID_POINT != last)
-					cv::line(res, current, last, cv::Scalar(0,0,255));
-				
-				// cv::imshow("image", res); cv::waitKey(0);
+				// cv::imshow("image", tempImage); cv::waitKey(0);
+				tempImage.release();
 				break;
 			}
 		}
 	}
 	
-	cv::imshow("image", res); cv::waitKey(0); 
+	cv::line(res, largeRect.startPoint, cv::Point(largeRect.endPoint.x, largeRect.endPoint.y), cv::Scalar(0,255,0), 5);
+	
+	if (BIL496::TOP_DOWN == largeRect.direction) {
+		cv::line(res, largeRect.startPoint, cv::Point(largeRect.startPoint.x, largeRect.startPoint.y + std::abs(largeRect.width)), cv::Scalar(0,255,0), 5);
+		cv::line(res, largeRect.endPoint, cv::Point(largeRect.endPoint.x, largeRect.endPoint.y + std::abs(largeRect.width)), cv::Scalar(0,255,0), 5);
+		cv::line(res, cv::Point(largeRect.startPoint.x, largeRect.startPoint.y + std::abs(largeRect.width)), cv::Point(largeRect.endPoint.x, largeRect.endPoint.y + std::abs(largeRect.width)), cv::Scalar(0,255,0), 5);
+	} else {
+		cv::line(res, largeRect.startPoint, cv::Point(largeRect.startPoint.x, largeRect.startPoint.y - std::abs(largeRect.width)), cv::Scalar(0,255,0), 5);
+		cv::line(res, largeRect.endPoint, cv::Point(largeRect.endPoint.x, largeRect.endPoint.y - std::abs(largeRect.width)), cv::Scalar(0,255,0), 5);
+		cv::line(res, cv::Point(largeRect.startPoint.x, largeRect.startPoint.y - std::abs(largeRect.width)), cv::Point(largeRect.endPoint.x, largeRect.endPoint.y - std::abs(largeRect.width)), cv::Scalar(0,255,0), 5);
+	}
+
+ 	cv::imshow("image", res); cv::waitKey(0); 
 	cv::imwrite("res.jpg", res);
 	
 	return res.clone();
