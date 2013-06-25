@@ -31,7 +31,7 @@ namespace BIL496 {
 	public:
 		static const cv::Mat stitch(const std::string& const videoPath);
 
-	// private:
+	private:
 		static const cv::Mat fixTheEdges(const cv::Mat& const image);
 	};
 
